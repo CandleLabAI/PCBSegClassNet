@@ -1,0 +1,84 @@
+# ------------------------------------------------------------------------
+# Copyright (c) 2023 CandleLabAI. All Rights Reserved.
+# ------------------------------------------------------------------------
+# general settings
+name: PCBSegClassNet
+model_type: ClassificationModel
+
+datasets:
+  train:
+    name: FPIC
+    type: Classification
+    data_images: ../data/classification/train/
+
+    img_size_h: 512
+    img_size_w: 512
+
+    # data loader
+    use_shuffle: true
+    batch_size: 16
+
+  val:
+    name: FPIC
+    type: Classification
+    data_images: ../data/classification/val/
+
+    img_size_h: 512
+    img_size_w: 512
+
+    use_shuffle: false
+    batch_size: 1
+
+# path
+path:
+  checkpoint_network: ../checkpoints/best_class.h5
+  log_file: ../logs/app.log
+
+# training settings
+train:
+  optim:
+    type: Adam
+    lr: 0.001
+    betas: [0.9, 0.9]
+
+  callbacks:
+    modelcheckpoint:
+      type: ModelCheckpoint
+      monitor: val_accuracy
+      mode: max
+      verbose: 1
+      save_best_only: true
+      save_weights_only: false
+    
+    reducelronplateau:
+      type: ReduceLROnPlateau
+      monitor: val_loss
+      mode: min
+      verbose: 1
+      factor: 0.1
+      patience: 15
+      min_lr: 0.00001
+
+  num_classes: 25
+  
+  # losses
+  loss:
+    type: categorical_crossentropy
+
+  # metrics  
+  metric:
+    Precision:
+      type: Precision
+    Recall:
+      type: Recall
+
+# val settings
+val:
+  # metrics  
+  metric:
+    MCC:
+      type: mcc
+    Precision:
+      type: Precision
+    Recall:
+      type: Recall

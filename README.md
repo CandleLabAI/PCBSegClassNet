@@ -3,7 +3,7 @@ PCBSegClassNet - A Light-weight Network for Segmentation and Classification of P
 
 ## Overview:
 
-This repository contains the source code of our paper, PCBSegClassNet (Under review for publication in <a href="https://www.sciencedirect.com/journal/expert-systems-with-applications">Expert Systems With Applications</a>).
+This repository contains the source code of our paper, PCBSegClassNet (Under review for publication in a journal).
 
 We present PCBSegClassNet, a novel deep neural network for PCB component segmentation and classification. We perform segmentation on the whole PCB image and classification on the individual component images. We design a novel two-branch network for achieving high segmentation and classification performance.
 
@@ -110,7 +110,7 @@ Above command will train segmentation model for 100 epochs with given configurat
 
 The trained checkpoint for model training will be saved in ```/checkpoints/best_seg.h5```
 
-### Testing Segmentatin performance
+### Testing Segmentation performance
 
 To test pscn with trained model, Run following command from ```/src``` directory.
 

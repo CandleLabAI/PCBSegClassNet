@@ -146,10 +146,10 @@ Above command will generate Accuracy, Precision, and Recall for classification o
 ## Citation
 ```
 @article {ref162,
-	title = "PCBSegClassNet - A Light-weight Network for Segmentation and Classification of PCB Component",
+	title = {{PCBSegClassNet - A Light-weight Network for Segmentation and Classification of PCB Component}},
 	year = "2023",
 	author = "Dhruv Makwana and R Sai Chandra Teja and Sparsh Mittal",
-	journal = "Expert Systems With Applications",
+	journal = "Under submission",
 }
 ```
 ## License

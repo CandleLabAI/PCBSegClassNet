@@ -5,6 +5,7 @@
 from .blocks import get_encoder, get_decoder, get_classification
 from .network import get_model
 from .loss import DISLoss, dice_coef, jacard_coef
+from .edsr import make_model
 
 __all__ = [
     # blocks
@@ -17,4 +18,6 @@ __all__ = [
     "DISLoss",
     "dice_coef",
     "jacard_coef",
+    # edsr
+    "make_model",
 ]

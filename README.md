@@ -17,32 +17,6 @@ Project Organization
 ------------
     ├── LICENSE                         <- The LICENSE for developers using this project.
     ├── README.md                       <- The top-level README for developers using this project.
-    ├── data
-    │   ├── segmentation                <- The segmentation format data for training segmentation model.
-    │   |   |── train
-    |   |   |   |── images              <- The training images directory where all patches of images will be stored.
-    |   |   |   |   └── image_0.png
-    |   |   |   |   └── image_1.png
-    |   |   |   |   └── ...
-    │   |   |   └── masks               <- The training masks directory where all patches of masks will be stored.
-    |   |   |   |   └── image_0.png
-    |   |   |   |   └── image_1.png
-    |   |   |   |   └── ...
-    │   |   |── val
-    |   |   |   └── images              <- The validation images directory where all patches of images will be stored.
-    |   |   |   |   └── image_0.png
-    |   |   |   |   └── image_1.png
-    |   |   |   |   └── ...
-    │   |   |   └── masks               <- The validation masks directory where all patches of masks will be stored.
-    |   |   |   |   └── image_0.png
-    |   |   |   |   └── image_1.png
-    |   |   |   |   └── ...
-    │   ├── classification              <- The classification format data for training classification model.
-    │   |   |── train
-    |   |   |  └── <CLASS_NAME>         <- directory with name of the classname (i.e., R, C, IC, ...).
-    |   |   |   |   └── image_0.png
-    |   |   |   |   └── image_1.png
-    |   |   |   |   └── ...
     ├── requirements.txt                <- The requirements file for reproducing the analysis environment, e.g. generated with `pip freeze > requirements.txt`.
     |── reports                         <- The directory containing metadata used for repo.
     ├── checkpoints                     <- Directory where best models will be saved.
@@ -60,7 +34,7 @@ Project Organization
     |   |   └── options.py              <- Source code for parsing yaml file.
     |   └── train_classification.py     <- Source code for training and testing of classification network.
     |   └── train_segmentation.py       <- Source code for training and testing of segmentation network.
-    └────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+    └─────────────────────────────────────────────────────────────────────────────────────────────────────────────
 ------------
 
 <hr>
@@ -95,7 +69,82 @@ pip install -r requirements.txt
 
 ### Dataset
 
-We have used FICS PCB Image Collection (FPIC) dataset which can be downloaded from <a href="https://www.trust-hub.org/#/data/pcb-images">here</a>. Data needs to be downloaded and placed under `data/` directory with format given in Project Organization. 
+We have used FICS PCB Image Collection (FPIC) dataset which can be downloaded from <a href="https://www.trust-hub.org/#/data/pcb-images">here</a>. `pcb_image.zip` and `smd_annotation.zip` needs to be downloaded, unzipped and placed under `data/` directory.
+
+NOTE: YOU NEED TO REQUEST FOR ACCESS CODES FROM AUTHOR TO DOWNLOAD THIS DATASET.
+
+Data Structure after completing above steps
+------------
+    ├── smd_annotation                  <- Directory containing annotations in csv format.
+    │   └── pcb_0f_cc_11_smd.csv
+    │   └── pcb_1f_cc_2_smd.csv
+    │   └── ...
+    ├── pcb_image                       <- Directory containing input images.
+    │   └── pcb_0b_cc_11.png
+    │   └── pcb_0f_cc_11.png
+    │   └── ...
+    └─────────────────────────────────────────────────────────────────────────────────────────────────────────────
+------------
+
+### Data preparation
+
+To prepare HSI + Clahe images, and Masks for segmentation and crops for  classification, run following code from `src/data` directory
+
+```bash
+python create_mask.py -i ../../data/pcb_image/ -a ../../data/smd_annotation/ -id ../../data/segmentation/images -ad ../../data/segmentation/masks -cd ../../data/classification/images/
+```
+
+To create patches and split data into train/test run following code from `src/data` directory. Here we choosed patch size as 768
+
+```bash
+python create_patches.py -i ../../data/segmentation/images/ -m ../../data/segmentation/masks -cd ../../data/classification/images/ -ps 768
+```
+
+Data Structure after completing above steps
+------------
+    ├──data
+    │  ├── sementation
+    │  │   ├── train
+    │  │   │   ├── images
+    │  │   │   │   └── image_0.png
+    │  │   │   │   └── image_1.png
+    │  │   │   │   └── ...
+    │  │   │   ├── masks
+    │  │   │   │   └── image_0.png
+    │  │   │   │   └── image_1.png
+    │  │   │   │   └── ...
+    │  │   ├── test
+    │  │   │   ├── images
+    │  │   │   │   └── image_0.png
+    │  │   │   │   └── image_1.png
+    │  │   │   │   └── ...
+    │  │   │   ├── masks
+    │  │   │   │   └── image_0.png
+    │  │   │   │   └── image_1.png
+    │  │   │   │   └── ...
+    │  ├── classification
+    │  │   ├── train
+    │  │   │   ├── BTN
+    │  │   │   │   └── image_0.png
+    │  │   │   │   └── image_1.png
+    │  │   │   │   └── ...
+    │  │   │   ├── C
+    │  │   │   │   └── image_0.png
+    │  │   │   │   └── image_1.png
+    │  │   │   │   └── ...
+    │  │   │   ...
+    │  │   ├── val
+    │  │   │   ├── BTN
+    │  │   │   │   └── image_0.png
+    │  │   │   │   └── image_1.png
+    │  │   │   │   └── ...
+    │  │   │   ├── C
+    │  │   │   │   └── image_0.png
+    │  │   │   │   └── image_1.png
+    │  │   │   │   └── ...
+    │  │   │   ...
+    └─────────────────────────────────────────────────────────────────────────────────────────────────────────────
+------------
 
 ### Training Segmentation model
 

@@ -3,7 +3,7 @@ PCBSegClassNet - A Light-weight Network for Segmentation and Classification of P
 
 ## Overview:
 
-This repository contains the source code of our paper, PCBSegClassNet (Under review for publication in <a href="https://www.sciencedirect.com/journal/expert-systems-with-applications">Expert Systems With Applications</a>).
+This repository contains the source code of our paper, PCBSegClassNet (published in <a href="https://www.sciencedirect.com/journal/expert-systems-with-applications">Expert Systems With Applications</a>).
 
 We present PCBSegClassNet, a novel deep neural network for PCB component segmentation and classification. We perform segmentation on the whole PCB image and classification on the individual component images. We design a novel two-branch network for achieving high segmentation and classification performance.
 
@@ -62,8 +62,9 @@ pip install -r requirements.txt
 
 First, create a conda environment
 ```bash
-conda create -n pscn # python=3
-source activate pscn
+conda create -n pscn  python=3.8
+conda activate pscn
+conda install pip
 pip install -r requirements.txt
 ```
 
@@ -182,7 +183,7 @@ Above command will train classification model for 100 epochs with given configur
 
 The trained checkpoint for model training will be saved in ```/checkpoints/best_class.h5```
 
-### Testing Segmentatin performance
+### Testing classification performance
 
 To test pscn with trained model, Run following command from ```/src``` directory.
 

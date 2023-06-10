@@ -1,20 +1,27 @@
 # ------------------------------------------------------------------------
 # Copyright (c) 2023 CandleLabAI. All Rights Reserved.
 # --------------------------------------------------------------------
+
+"""
+Create RGB mask from given csv annotations
+
+Usage: python create_mask.py -i ../../data/pcb_image/ -a ../../data/smd_annotation/ -id ../../data/segmentation/images -ad ../../data/segmentation/masks -cd ../../data/classification/images/
+"""
+
+from glob import glob
+import argparse
 import sys
+import ast
+import os
+
 sys.path.append("../models")
-from edsr import make_model
+from edsr import get_edsr_model
 import albumentations as A
 import tensorflow as tf
 from tqdm import tqdm
-from glob import glob
 import pandas as pd
 import numpy as np
-import argparse
-import shutil
 import cv2
-import ast
-import os
 
 # color_values is used to encode mask into one hot mapping.
 color_values = {
@@ -45,12 +52,30 @@ color_values = {
     "JP": (255, 250, 200)
 }
 
-def prepare_data(source_image_dir, source_annotation_dir, dest_images_dir, dest_masks_sir, crops_dest_dir, model):
+def prepare_data(source_image_dir,
+                 source_annotation_dir,
+                 dest_images_dir,
+                 dest_masks_sir,
+                 crops_dest_dir,
+                 model):
+    """
+    Helper function which creates masks and croops
+    Args:
+        source_image_dir: image directory containing input images
+        source_annotation_dir: annotation directory containing csv annotations
+        dest_images_dir: destination directory for storing images
+        dest_masks_sir: destination directory for storing masks
+        dest_crops_dir: destinations directory for storing crops
+        model: super resolution model
+    """
     annotations_list = glob(os.path.join(source_annotation_dir, "*.csv"))
     count = 0
     cnt = 0
     transform = A.Compose([
-        A.augmentations.transforms.CLAHE(clip_limit=4.0, tile_grid_size=(8, 8), always_apply=False, p=1.0)
+        A.augmentations.transforms.CLAHE(clip_limit=4.0,
+                                         tile_grid_size=(8, 8),
+                                         always_apply=False,
+                                         p=1.0)
     ])
     with tqdm(total=len(annotations_list)) as pbar:
         for annotation in annotations_list:
@@ -75,7 +100,6 @@ def prepare_data(source_image_dir, source_annotation_dir, dest_images_dir, dest_
                             pts = np.array(ast.literal_eval(anote))[0].reshape((-1, 1, 2))
                         except:
                             continue
-                            # pts = np.array(np.array(ast.literal_eval(anote))[0]).reshape((-1, 1, 2))
                         mask = cv2.polylines(mask, [pts], True, color_code, 2)
                         mask = cv2.fillPoly(mask, [pts], color=color_code)
                         # create crops
@@ -83,7 +107,8 @@ def prepare_data(source_image_dir, source_annotation_dir, dest_images_dir, dest_
                         mask_copy = cv2.polylines(mask_copy, [pts], True, color_code, 2)
                         mask_copy = cv2.fillPoly(mask_copy, [pts], color=color_code)
                         mask_copy = cv2.cvtColor(mask_copy, cv2.COLOR_BGR2GRAY)
-                        contours, _ = cv2.findContours(mask_copy, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+                        contours, _ = cv2.findContours(mask_copy, cv2.RETR_EXTERNAL,
+                                                       cv2.CHAIN_APPROX_NONE)
                         x,y,w,h = cv2.boundingRect(contours[0])
                         comp_img = img[y:y+h, x:x+w]
                         comp_img = tf.image.resize(comp_img, (150, 150))
@@ -91,28 +116,50 @@ def prepare_data(source_image_dir, source_annotation_dir, dest_images_dir, dest_
                         comp_img = np.array(preds)
                         if not os.path.exists(os.path.join(crops_dest_dir, cat)):
                             os.makedirs(os.path.join(crops_dest_dir, cat))
-                        cv2.imwrite(os.path.join(crops_dest_dir, cat, f"image_{cnt}.png"), cv2.cvtColor(comp_img, cv2.COLOR_BGR2RGB))
+                        cv2.imwrite(os.path.join(crops_dest_dir, cat, f"image_{cnt}.png"),
+                                    cv2.cvtColor(comp_img, cv2.COLOR_BGR2RGB))
                         cnt += 1
-                        
+
                     if len(np.unique(mask)) > 1:
-                        cv2.imwrite(os.path.join(dest_masks_sir, f"image_{count}.png"), cv2.cvtColor(mask, cv2.COLOR_BGR2RGB))
-                        # shutil.copy(os.path.join(source_image_dir, image_name[0]), os.path.join(dest_images_dir, f"image_{count}.png"))
-                        cv2.imwrite(os.path.join(dest_images_dir, f"image_{count}.png"), cv2.cvtColor(img1, cv2.COLOR_BGR2RGB))
+                        cv2.imwrite(os.path.join(dest_masks_sir, f"image_{count}.png"),
+                                    cv2.cvtColor(mask, cv2.COLOR_BGR2RGB))
+                        cv2.imwrite(os.path.join(dest_images_dir, f"image_{count}.png"),
+                                    cv2.cvtColor(img1, cv2.COLOR_BGR2RGB))
                     count+=1
                     pbar.update(1)
 
-def main(source_image_dir, source_annotation_dir, dest_images_dir, dest_masks_sir, dest_crops_dir, model):
-    # create dest directory if not exist
+def main(source_image_dir,
+         source_annotation_dir,
+         dest_images_dir,
+         dest_masks_sir,
+         dest_crops_dir,
+         model):
+    """
+    main function which creates mask
+    Args:
+        source_image_dir: image directory containing input images
+        source_annotation_dir: annotation directory containing csv annotations
+        dest_images_dir: destination directory for storing images
+        dest_masks_sir: destination directory for storing masks
+        dest_crops_dir: destinations directory for storing crops
+        model: super resolution model
+    """
+    # create directories if not exist
     if not os.path.exists(dest_images_dir):
         os.makedirs(dest_images_dir)
 
     if not os.path.exists(dest_masks_sir):
         os.makedirs(dest_masks_sir)
-    
+
     if not os.path.exists(dest_crops_dir):
         os.makedirs(dest_crops_dir)
 
-    prepare_data(source_image_dir, source_annotation_dir, dest_images_dir, dest_masks_sir, dest_crops_dir, model)
+    prepare_data(source_image_dir,
+                 source_annotation_dir,
+                 dest_images_dir,
+                 dest_masks_sir,
+                 dest_crops_dir,
+                 model)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(prog='PCBSegClassNet')
@@ -143,9 +190,9 @@ if __name__ == "__main__":
                         help="The path of destination directory where crops needs to be stored")
     args = parser.parse_args()
 
-    model = make_model(num_filters=64, num_of_residual_blocks=16)
+    model = get_edsr_model(num_filters=64, num_of_residual_blocks=16)
     model.load_weights("../../checkpoints/super_resolution.h5")
-    
+
     main(source_image_dir = args.images_dir,
          source_annotation_dir = args.annotations_dir,
          dest_images_dir = args.images_dest_dir,

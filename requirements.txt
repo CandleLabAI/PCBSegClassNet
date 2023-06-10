@@ -2,4 +2,7 @@
 # Copyright (c) 2023 CandleLabAI. All Rights Reserved.
 # ------------------------------------------------------------------------
 pyyaml==6.0
-tensorflow==2.11
+tensorflow-gpu==2.11
+albumentations
+tqdm
+pandas

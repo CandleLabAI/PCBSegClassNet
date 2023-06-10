@@ -2,38 +2,65 @@
 # Copyright (c) 2023 CandleLabAI. All Rights Reserved.
 # ------------------------------------------------------------------------
 
-from . import get_encoder, get_decoder, get_classification
+"""
+Network definition for PCBSegNet and PCBClassNet
+"""
+
 import tensorflow as tf
 import models
 
+from . import get_encoder, get_decoder, get_classification
 
 class PCBSegNet:
+    """
+    Main class for segmentation model creation
+    """
     def __init__(self, opt):
+        """
+        Args:
+            opt: training options
+        """
         self.model_type = opt["model_type"]
         self.image_height = opt["datasets"]["train"]["img_size_h"]
         self.image_width = opt["datasets"]["train"]["img_size_w"]
         self.num_classes = opt["train"]["num_classes"] + 1
 
     def build(self):
-        encoder = get_encoder(self.image_height, self.image_width)
-        model = get_decoder(encoder, self.num_classes)
+        """
+        build encoder, decoder and final model
+        """
+        encoder, learning_layer1, learning_layer2 = get_encoder(self.image_height, self.image_width)
+        model = get_decoder(encoder, learning_layer1, learning_layer2, self.num_classes)
+        print(model.summary())
         return model
 
-
 class PCBClassNet:
+    """
+    Main class for classfication model creation
+    """
     def __init__(self, opt):
+        """
+        Args:
+            opt: training options
+        """
         self.model_type = opt["model_type"]
         self.image_height = opt["datasets"]["train"]["img_size_h"]
         self.image_width = opt["datasets"]["train"]["img_size_w"]
         self.num_classes = opt["train"]["num_classes"]
 
     def build(self):
+        """
+        build encoder and final model
+        """
         encoder = get_encoder(self.image_height, self.image_width)
         model = get_classification(encoder, self.num_classes)
         return model
 
 
 def get_model(opt):
+    """
+    helper function to create model from given configurations
+    """
     if opt["model_type"] == "SegmentationModel":
         seg_model = PCBSegNet(opt)
         model = seg_model.build()
@@ -71,4 +98,5 @@ def get_model(opt):
     else:
         assert (
             False
-        ), f"Found model type as {opt['model_type']} but it should be one of SegmentationModel/ClassificationModel"
+        ), f"Found model type as {opt['model_type']} \
+            but it should be one of SegmentationModel/ClassificationModel"

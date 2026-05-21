@@ -87,3 +87,16 @@ target/
 
 # Mypy cache
 .mypy_cache/
+
+# Claude Code working state
+.claude/
+
+# Training logs
+/logs/*.log
+
+# Model checkpoints downloaded from Colab (super_resolution.h5 in checkpoints/
+# is already tracked; this only catches root-level .h5 backups)
+/best_*.h5
+
+# Data archives at repo root
+/*.zip

@@ -34,10 +34,14 @@ def parse_config():
                         type=int,
                         default=1,
                         help="number of epochs.")
+    parser.add_argument("-resume",
+                        action="store_true",
+                        help="resume training from existing best checkpoint.")
     args = parser.parse_args()
 
     opt = parse(args.opt)
     opt["train"]["total_epochs"] = args.epoch
+    opt["train"]["resume"] = args.resume
     return opt
 
 def init_log(opt):
@@ -109,6 +113,12 @@ def main():
                 min_lr=opt["train"]["callbacks"]["reducelronplateau"]["min_lr"],
             )
         )
+
+    # resume from existing checkpoint if requested
+    import os
+    if opt["train"].get("resume") and os.path.exists(opt["path"]["checkpoint_network"]):
+        logger.info(f"Resuming from {opt['path']['checkpoint_network']}")
+        model.load_weights(opt["path"]["checkpoint_network"])
 
     # training model
     if opt["train"]["total_epochs"] > 0:

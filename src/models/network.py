@@ -52,7 +52,7 @@ class PCBClassNet:
         """
         build encoder and final model
         """
-        encoder = get_encoder(self.image_height, self.image_width)
+        encoder, _, _ = get_encoder(self.image_height, self.image_width)
         model = get_classification(encoder, self.num_classes)
         return model
 
